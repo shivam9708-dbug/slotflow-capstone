@@ -18,7 +18,8 @@ function App() {
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        const res = await fetch('http://localhost:5001/api/services');
+        // NAYA LIVE URL
+        const res = await fetch(import.meta.env.VITE_API_URL + '/api/services');
         if(res.ok) {
           const data = await res.json();
           setServices(data);
@@ -36,24 +37,18 @@ function App() {
     setBookingStatus({ loading: true, success: false, error: null });
 
     try {
-      const res = await fetch('http://localhost:5001/api/book', {
+      // NAYA LIVE URL
+      const res = await fetch(import.meta.env.VITE_API_URL + '/api/book', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name, 
-          email, 
-          phone,
-          serviceId: selectedServiceId,
-          date,
-          startTime: selectedSlot.start_time,
-          endTime: selectedSlot.end_time
+          name, email, phone, serviceId: selectedServiceId, date,
+          startTime: selectedSlot.start_time, endTime: selectedSlot.end_time
         })
       });
 
       const data = await res.json();
-      
       if (!res.ok) throw new Error(data.error || 'Booking failed');
-
       setBookingStatus({ loading: false, success: true, error: null });
     } catch (error) {
       setBookingStatus({ loading: false, success: false, error: error.message });
@@ -70,10 +65,7 @@ function App() {
             Your appointment has been successfully scheduled for <br/>
             <span className="font-semibold text-gray-900">{date} at {selectedSlot.label}</span>.
           </p>
-          <button 
-            onClick={() => window.location.reload()} 
-            className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition cursor-pointer"
-          >
+          <button onClick={() => window.location.reload()} className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition cursor-pointer">
             Book Another Slot
           </button>
         </div>
@@ -89,18 +81,13 @@ function App() {
             <h1 className="text-2xl font-bold text-blue-600">SlotFlow</h1>
             <span className="text-sm text-gray-500 font-medium hidden md:inline">Smart Appointment System</span>
           </div>
-          {/* Admin Toggle Button */}
-          <button 
-            onClick={() => setIsAdminView(!isAdminView)}
-            className="bg-gray-800 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-700 transition cursor-pointer"
-          >
+          <button onClick={() => setIsAdminView(!isAdminView)} className="bg-gray-800 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-700 transition cursor-pointer">
             {isAdminView ? 'Go to Booking Page' : 'Admin Panel'}
           </button>
         </div>
       </header>
 
       <main className="max-w-4xl mx-auto px-4 py-8">
-        {/* Conditional Rendering: Agar Admin view true hai toh Dashboard dikhao, warna form */}
         {isAdminView ? (
           <AdminDashboard />
         ) : (
@@ -111,25 +98,15 @@ function App() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Select Service</label>
-                <select 
-                  value={selectedServiceId} 
-                  onChange={(e) => { setSelectedServiceId(e.target.value); setSelectedSlot(null); }}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 outline-none bg-white"
-                >
+                <select value={selectedServiceId} onChange={(e) => { setSelectedServiceId(e.target.value); setSelectedSlot(null); }} className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 outline-none bg-white">
                   {services.map(srv => (
                     <option key={srv.id} value={srv.id}>{srv.name} ({srv.duration_minutes} mins)</option>
                   ))}
                 </select>
               </div>
-
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Select Date</label>
-                <input 
-                  type="date" 
-                  value={date}
-                  onChange={(e) => { setDate(e.target.value); setSelectedSlot(null); }}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 outline-none"
-                />
+                <input type="date" value={date} onChange={(e) => { setDate(e.target.value); setSelectedSlot(null); }} className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 outline-none" />
               </div>
             </div>
 
@@ -145,24 +122,15 @@ function App() {
             {selectedSlot && (
               <form onSubmit={handleBooking} className="mt-8 p-6 bg-blue-50 border border-blue-100 rounded-lg">
                 <h3 className="text-lg font-medium text-blue-900 mb-4">Enter Details for {selectedSlot.label}</h3>
-                
                 <div className="space-y-4">
-                  <div>
-                    <input required type="text" placeholder="Full Name" value={name} onChange={e => setName(e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 outline-none bg-white" />
-                  </div>
+                  <input required type="text" placeholder="Full Name" value={name} onChange={e => setName(e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 outline-none bg-white" />
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <input required type="email" placeholder="Email Address" value={email} onChange={e => setEmail(e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 outline-none bg-white" />
                     <input required type="tel" placeholder="Phone Number" value={phone} onChange={e => setPhone(e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 outline-none bg-white" />
                   </div>
                 </div>
-
                 {bookingStatus.error && <p className="text-red-500 text-sm mt-3">{bookingStatus.error}</p>}
-
-                <button 
-                  type="submit" 
-                  disabled={bookingStatus.loading}
-                  className="mt-6 w-full bg-blue-600 text-white py-3 rounded-md font-medium hover:bg-blue-700 transition disabled:bg-blue-400 cursor-pointer"
-                >
+                <button type="submit" disabled={bookingStatus.loading} className="mt-6 w-full bg-blue-600 text-white py-3 rounded-md font-medium hover:bg-blue-700 transition disabled:bg-blue-400 cursor-pointer">
                   {bookingStatus.loading ? 'Processing...' : 'Confirm Booking'}
                 </button>
               </form>

@@ -4,7 +4,8 @@ export default function AdminDashboard() {
     const [appointments, setAppointments] = useState([]);
 
     useEffect(() => {
-        fetch('http://localhost:5001/api/appointments')
+        // NAYA LIVE URL
+        fetch(import.meta.env.VITE_API_URL + '/api/appointments')
             .then(res => res.json())
             .then(data => setAppointments(data))
             .catch(err => console.error(err));
