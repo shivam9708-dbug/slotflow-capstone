@@ -9,7 +9,7 @@ export default function SlotPicker({ date, serviceId, onSlotSelect }) {
         if (!date || !serviceId) return;
         
         setLoading(true);
-        setApiError(""); // Purane errors clear karein
+        setApiError("");
         
         fetch(`${import.meta.env.VITE_API_URL}/api/slots?date=${date}&serviceId=${serviceId}`)
             .then(async res => {
@@ -18,8 +18,11 @@ export default function SlotPicker({ date, serviceId, onSlotSelect }) {
                 return data;
             })
             .then(data => {
-                if (Array.isArray(data)) {
-                    setSlots(data);
+                // Yahan humne data.slots check laga diya hai
+                const slotsArray = data.slots ? data.slots : data;
+                
+                if (Array.isArray(slotsArray)) {
+                    setSlots(slotsArray);
                 } else {
                     throw new Error("API did not return a valid list of slots");
                 }
@@ -43,9 +46,10 @@ export default function SlotPicker({ date, serviceId, onSlotSelect }) {
                 <button
                     key={index}
                     onClick={() => onSlotSelect(slot)}
-                    disabled={!slot.available}
+                    // Agar backend se "available" field nahi aa raha (sirf label hai), toh ise enabled rakhne ke liye logic adjust kiya hai
+                    disabled={slot.available === false} 
                     className={`py-2 px-3 text-sm rounded-md border transition ${
-                        slot.available 
+                        slot.available !== false 
                             ? 'bg-white border-blue-600 text-blue-600 hover:bg-blue-50 cursor-pointer' 
                             : 'bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed'
                     }`}
